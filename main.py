@@ -11,25 +11,36 @@
 from functools import partial
 from io import BytesIO
 from urllib.error import URLError, HTTPError
+from http import HTTPStatus
 import gzip
 import http.server
 import re
 import ssl
+import socket
 import urllib.parse
 import urllib.request
+
+WEBSERVER_ACTIVATE_TEXT="""
+Hello! I hope you're doing well.
+
+Your proxy server is being served on:
+Address: {ip_address}:{port}
+Hostname: {hostname}
+"""
 
 class ProxyBoyBase(http.server.BaseHTTPRequestHandler):
     def __init__(self, LoggerClass, request, client_address, server):
         self.logger = LoggerClass
+        self._headers_buffer = []
         super(ProxyBoyBase, self).__init__(request, client_address, server)
 
     def assign_port(self, parsed_url):
         port = parsed_url.port
-        
+
         # Search through to find a port string
         if not port:
             port = parsed_url.path.split(':')[-1:][0]
-       
+
         if not port or (port == parsed_url.path):
             port = 80
 
@@ -94,9 +105,6 @@ class ProxyBoy(ProxyBoyBase):
 
     def do_PROXY(self):
         """Proxies requests sent to this network."""
-        if not hasattr( self, '_headers_buffer'):
-            self._headers_buffer = []
-        
         client_url = self.get_client_url(self.headers.get('Host'))
 
         opener = urllib.request.build_opener()
@@ -104,7 +112,7 @@ class ProxyBoy(ProxyBoyBase):
             ("X-Forwarded-Host", self.headers.get('Host'))
         ]
         self.end_headers()
-        
+
         self.wfile.close()
         self.wfile = self.connection.makefile('wb', self.wbufsize)
 
@@ -116,10 +124,10 @@ class ProxyBoy(ProxyBoyBase):
 
             if encoding == 'gzip':
                 response = gzip.open(response)
-        
+
         except HTTPError as e:
             print('The server couldn\'t fulfill the request.')
-            print(f"Error code: {e.code}\nError message: {e.reason}");
+            print(f"Error code: {e.code}\nError message: {e.reason}")
             return
         except URLError as e:
             print('We failed to reach a server.')
@@ -128,7 +136,7 @@ class ProxyBoy(ProxyBoyBase):
         else:
        #     # All good, set up the headers for our response
        #     headers = response.info().items()
-       #     
+       #
        #     for header in self.headers:
        #         self.send_header(header[0], header[1])
             self.wfile.write(response.read())
@@ -141,14 +149,18 @@ class ProxyBoyServer:
     def __init__(self, port, LoggerClass):
         self.port = port
         self.logger = LoggerClass
-    
+
     def runServer(self):
         pyroxy_request_handler = partial(ProxyBoy, self.logger)
 
         with http.server.HTTPServer(('', self.port), pyroxy_request_handler) as httpd:
             try:
-                print(f'Now serving on http://localhost.com:{self.port}')
-               # httpd.socket = ssl.wrap_socket(httpd.socket, server_side=True, certfile='proxypem.pem')
+                hostname = socket.gethostname()
+                ip = socket.gethostbyname(hostname)
+                print(WEBSERVER_ACTIVATE_TEXT.format(
+                    hostname=hostname, ip_address=ip, port=self.port
+                ))
+                httpd.socket = ssl.wrap_socket(httpd.socket, server_side=True, certfile='proxypem.pem')
                 httpd.serve_forever()
             except KeyboardInterrupt:
                 print("\nNow shutting down. Thank you for using ProxyBoy\n")
@@ -163,7 +175,7 @@ if __name__ == '__main__':
                         help='Specify alternate port [default: 1234]')
 
     args = parser.parse_args()
-    
+
     logger = ProxyBoyLogger()
     server = ProxyBoyServer(args.port, logger)
-    server.runServer();
+    server.runServer()
