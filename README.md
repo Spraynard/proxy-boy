@@ -10,7 +10,7 @@ Does not work with python2.
 
 Clone the repo, move into the repo root, and run the following command
 
-```python
+```bash
 python main.py <port>
 ```
 
