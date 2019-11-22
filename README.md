@@ -14,7 +14,7 @@ Clone the repo, move into the repo root, and run the following command
 python main.py <port>
 ```
 
-where `<port>` is whatever port you would like for your proxy server to run at.
+where `<port>` is whatever port you would like for your proxy server to run at. The default is port 1234.
 
 # Made With
 * Python v3.7
