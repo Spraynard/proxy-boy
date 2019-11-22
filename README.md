@@ -17,4 +17,4 @@ python main.py <port>
 where `<port>` is whatever port you would like for your proxy server to run at.
 
 # Made With
-* Python v3.7.
+* Python v3.7
