@@ -28,15 +28,6 @@ class ProxyBoyHTTPServer(socketserver.ThreadingTCPServer):
         super(ProxyBoyHTTPServer, self).__init__(server_address, RequestHandlerClass)
         self.allow_reuse_address = True
 
-    def get_request(self):
-        """Get the request and client address from the socket.
-
-        May be overridden.
-
-        """
-        return self.socket.accept()
-
-
 class ProxyBoyServer:
 
     def __init__(self, RequestHandler, hostname, port, ssl, cert_file, key_file):
