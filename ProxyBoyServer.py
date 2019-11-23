@@ -4,6 +4,7 @@ import socketserver
 import socket
 import ssl
 import templates
+import threading
 
 """
 Saturday 11/23/2019
@@ -22,9 +23,10 @@ I know that a real proxy just uses "tunneling" in order to achieve these effects
 and I might just go ahead and try to implement that because this is turning out to
 be a trip to hell.
 """
-class ProxyBoyHTTPServer(socketserver.TCPServer):
+class ProxyBoyHTTPServer(socketserver.ThreadingTCPServer):
     def __init(self, server_address, RequestHandlerClass):
         super(ProxyBoyHTTPServer, self).__init__(server_address, RequestHandlerClass)
+        self.allow_reuse_address = True
 
     def get_request(self):
         """Get the request and client address from the socket.
@@ -67,12 +69,11 @@ class ProxyBoyServer:
         """
         Start up the server little man
         """
-
         with ProxyBoyHTTPServer((self.hostname, self.port), self.RequestHandler) as httpd:
+            ip, port = httpd.server_address
             try:
                 hostname = socket.gethostname()
-                ip = socket.gethostbyname(hostname)
-                print(templates.WEBSERVER_ACTIVATE_TEXT.format(hostname=hostname, ip_address=ip, port=self.port))
+                print(templates.WEBSERVER_ACTIVATE_TEXT.format(hostname=hostname, ip_address=ip, port=port))
 
                 if self.ssl:
                     httpd.socket = ssl.wrap_socket(
@@ -82,7 +83,12 @@ class ProxyBoyServer:
                         server_side=True
                     )
 
+                server_thread = threading.Thread(target=httpd.serve_forever())
+                server_thread.daemon = True
+                server_thread.start()
+
                 httpd.serve_forever()
             except KeyboardInterrupt:
                 print("\nNow shutting down. Thank you for using ProxyBoy\n")
+                httpd.shutdown()
                 exit()
