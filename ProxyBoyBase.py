@@ -12,7 +12,6 @@ class ProxyBoyBase(BaseHTTPRequestHandler):
         self._general_header_exclude = [
             ('Connection', 'keep-alive'),
             ('Proxy-Connection', 'keep-alive'),
-            ('Transfer-Encoding', 'chunked')
         ]
         self._response_header_exclude = [
             'Server',
@@ -20,6 +19,13 @@ class ProxyBoyBase(BaseHTTPRequestHandler):
             'Transfer-Encoding'
         ]
         super(ProxyBoyBase, self).__init__(request, client_address, server)
+
+    def clear_headers_buffer(self):
+        """
+        Clears the headers buffer in this request handler in a way that doesn't write out to our wfile
+        """
+        self._headers_buffer = []
+        return
 
     def do_PROXY(self):
         """
