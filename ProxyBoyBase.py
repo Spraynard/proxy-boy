@@ -93,7 +93,7 @@ class ProxyBoyBase(BaseHTTPRequestHandler):
         if port == '443':
             ssl = True
 
-        print("PARSED URL");
+        print("PARSED URL")
         print(parsed_url)
 
         if not parsed_url.netloc:
