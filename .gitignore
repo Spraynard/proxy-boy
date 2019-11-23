@@ -1,3 +1,4 @@
 *.pem
 *.key
 settings.json
+__pycache__/
