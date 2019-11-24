@@ -80,6 +80,6 @@ class ProxyBoyServer:
 
                 httpd.serve_forever()
             except KeyboardInterrupt:
-                print("\nNow shutting down. Thank you for using ProxyBoy\n")
+                print(templates.WEBSERVER_DEACTIVATE_TEXT)
                 httpd.shutdown()
                 exit()
