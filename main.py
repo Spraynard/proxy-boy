@@ -28,31 +28,27 @@ if __name__ == '__main__':
     )
 
     parser.add_argument('port', action='store',
-                    default=1234, type=int,
-                    nargs='?',
-                    help='Specify alternate port [default: 1234]')
-
+        default=1234, type=int,
+        nargs='?',
+        help='Specify alternate port [default: 1234]')
     parser.add_argument('hostname', action='store',
-                        default='', type=str,
-                        nargs='?',
-                        help='Specify alternate hostname [default: 127.0.0.1]')
+        default='localhost', type=str,
+        nargs='?',
+        help='Specify alternate hostname [default: 127.0.0.1]')
     parser.add_argument('--ssl', action='store_const',
-                        const=True,
-                        default=False,
-                        help='Flag that you would like to set your proxy up on an SSL connection')
+        const=True,
+        default=False,
+        help='Flag that you would like to set your proxy up on an SSL connection')
     parser.add_argument('--cert-file', action='store',
-                        default="cert.pem", type=str,
-                        nargs='?',
-                        help='Flag that you would like to set your proxy up on an SSL connection')
+        default="cert.pem", type=str,
+        nargs='?',
+        help='Flag that you would like to set your proxy up on an SSL connection')
     parser.add_argument('--key-file', action='store',
-                        default="key.pem", type=str,
-                        nargs='?',
-                        help='Flag that you would like to set your proxy up on an SSL connection')
+        default="key.pem", type=str,
+        nargs='?',
+        help='Flag that you would like to set your proxy up on an SSL connection')
 
     args = parser.parse_args()
-
-    print("Arguments")
-    print(args)
 
     request_handler = partial( ProxyBoy, LoggerClass=ProxyBoyLogger )
 
