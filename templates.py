@@ -7,6 +7,8 @@ Address: {ip_address}:{port}
 Hostname: {hostname}
 """
 
+WEBSERVER_DEACTIVATE_TEXT = "\nNow shutting down. Thank you for using ProxyBoy\n"
+
 # Base Debug Output Message Template
 PROXY_BOY_LOGGER_MESSAGE_TEMPLATE="""
 *****[PROXY-BOY]************************************************************
